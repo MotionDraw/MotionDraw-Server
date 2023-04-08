@@ -1,0 +1,17 @@
+{
+  "parserOptions": {
+    "ecmaVersion": "latest"
+  },
+  "env": {
+    "es2020": true,
+    "browser": true,
+    "node": true
+  },
+  "extends": ["eslint:recommended"],
+  "rules": {
+    "no-var": "error",
+    "no-multiple-empty-lines": "error",
+    "eqeqeq": "error",
+    "no-unused-vars": "warn"
+  }
+}
