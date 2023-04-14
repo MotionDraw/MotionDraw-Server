@@ -1,12 +1,14 @@
+require("dotenv").config();
 const createError = require("http-errors");
 const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
-
 const indexRouter = require("./routes/index");
+const { initSocket } = require("./utils/socket");
 
 const app = express();
+initSocket();
 
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
