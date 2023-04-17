@@ -16,23 +16,24 @@ const initSocket = () => {
 
   io.on("connection", (socket) => {
     socket.on("disconnect", () => {
-      console.log("A user disconnected");
+      console.log("A user disconnected", socket.id);
     });
 
-    socket.on("room-list", (callback) => {
+    socket.on("roomList", (callback) => {
       callback([...publicRooms]);
     });
 
-    socket.on("join-room", (roomName, callback) => {
+    socket.on("joinRoom", (roomName, callback) => {
       if (publicRooms.find((element) => element === roomName)) {
         socket.join(roomName);
+
         callback({ success: true, payload: roomName });
       } else {
         callback({ success: false });
       }
     });
 
-    socket.on("create-room", (roomName, callback) => {
+    socket.on("createRoom", (roomName, callback) => {
       if (!publicRooms.find((element) => element === roomName)) {
         publicRooms.push(roomName);
         socket.join(roomName);
@@ -42,7 +43,7 @@ const initSocket = () => {
       }
     });
 
-    socket.on("leave-room", (roomName) => {
+    socket.on("leaveRoom", (roomName) => {
       socket.leave(roomName);
 
       const clients = io.sockets.adapter.rooms.get(roomName);
@@ -51,6 +52,25 @@ const initSocket = () => {
       if (numClients === 0) {
         publicRooms = publicRooms.filter((room) => room !== roomName);
       }
+    });
+
+    socket.on("sendHistory", (roomName) => {
+      const clients = io.sockets.adapter.rooms.get(roomName);
+      const firstClient = clients?.values().next().value;
+
+      if (!firstClient) return;
+
+      if (clients.size !== 1) {
+        io.to(firstClient).emit("requestData", roomName);
+      }
+    });
+
+    socket.on("callbackData", (roomName, data) => {
+      socket.broadcast.to(roomName).emit("initCanvas", data);
+    });
+
+    socket.on("drawLine", (roomName, data) => {
+      socket.broadcast.to(roomName).emit("draw", data);
     });
   });
 
