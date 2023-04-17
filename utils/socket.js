@@ -20,7 +20,18 @@ const initSocket = () => {
     });
 
     socket.on("roomList", (callback) => {
-      callback([...publicRooms]);
+      if (publicRooms.length === 0) return;
+
+      const roomInfo = [];
+
+      for (let i = 0; i < publicRooms.length; i += 1) {
+        const clients = io.sockets.adapter.rooms.get(publicRooms[i]);
+        const numClients = clients ? clients.size : 0;
+
+        roomInfo.push({ roomName: publicRooms[i], playerCount: numClients });
+      }
+
+      callback([...roomInfo]);
     });
 
     socket.on("joinRoom", (roomName, callback) => {
