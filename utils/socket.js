@@ -6,6 +6,7 @@ const app = express();
 const initSocket = () => {
   const server = http.createServer(app);
   const io = socketIO(server, {
+    maxHttpBufferSize: 10 * 1024 * 1024,
     cors: {
       origin: process.env.CORS_ORIGIN,
       methods: ["GET", "POST"],
@@ -82,6 +83,10 @@ const initSocket = () => {
 
     socket.on("drawLine", (roomName, data) => {
       socket.broadcast.to(roomName).emit("draw", data);
+    });
+
+    socket.on("cursorPosition", (roomName, socketId, data) => {
+      socket.broadcast.to(roomName).emit("cursorPosition", socketId, data);
     });
   });
 
