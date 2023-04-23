@@ -21,7 +21,9 @@ const initSocket = () => {
     });
 
     socket.on("roomList", (callback) => {
-      if (publicRooms.length === 0) return;
+      if (publicRooms.length === 0) {
+        callback([]);
+      }
 
       const roomInfo = [];
 
