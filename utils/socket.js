@@ -3,16 +3,16 @@ const socketIO = require("socket.io");
 const express = require("express");
 const app = express();
 
-const initSocket = () => {
-  const server = http.createServer(app);
-  const io = socketIO(server, {
-    maxHttpBufferSize: 10 * 1024 * 1024,
-    cors: {
-      origin: process.env.CORS_ORIGIN,
-      methods: ["GET", "POST"],
-    },
-  });
+const server = http.createServer(app);
+const io = socketIO(server, {
+  maxHttpBufferSize: 10 * 1024 * 1024,
+  cors: {
+    origin: process.env.CORS_ORIGIN,
+    methods: ["GET", "POST"],
+  },
+});
 
+const initSocket = () => {
   let publicRooms = [];
 
   io.on("connection", (socket) => {
@@ -97,4 +97,8 @@ const initSocket = () => {
   });
 };
 
-module.exports = { initSocket };
+const closeSocket = () => {
+  io.close();
+};
+
+module.exports = { server, initSocket, closeSocket };
