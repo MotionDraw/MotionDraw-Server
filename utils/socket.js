@@ -1,14 +1,14 @@
-const http = require("http");
-const socketIO = require("socket.io");
-const express = require("express");
-const app = express();
+const { Server } = require("socket.io");
 
-const server = http.createServer(app);
-const io = socketIO(server, {
+const io = new Server({
   maxHttpBufferSize: 10 * 1024 * 1024,
   cors: {
     origin: process.env.CORS_ORIGIN,
     methods: ["GET", "POST"],
+  },
+  connectionStateRecovery: {
+    maxDisconnectionDuration: 2 * 60 * 1000,
+    skipMiddlewares: true,
   },
 });
 
@@ -16,7 +16,16 @@ const initSocket = () => {
   let publicRooms = [];
 
   io.on("connection", (socket) => {
+    console.log("A user connected", socket.id);
+
     socket.on("disconnect", () => {
+      publicRooms = publicRooms.filter((room) => {
+        const clients = io.sockets.adapter.rooms.get(room);
+        const numClients = clients ? clients.size : 0;
+
+        if (numClients !== 0) return room;
+      });
+
       console.log("A user disconnected", socket.id);
     });
 
@@ -92,7 +101,7 @@ const initSocket = () => {
     });
   });
 
-  server.listen(4000, () => {
+  io.listen(4000, () => {
     console.log("Server started on port 4000");
   });
 };
@@ -101,4 +110,4 @@ const closeSocket = () => {
   io.close();
 };
 
-module.exports = { server, initSocket, closeSocket };
+module.exports = { initSocket, closeSocket };
