@@ -7,6 +7,7 @@
 const app = require("../app");
 const debug = require("debug")("motion-draw-server:server");
 const http = require("http");
+const { initSocket } = require("../utils/socket");
 
 /**
  * Get port from environment and store in Express.
@@ -24,6 +25,16 @@ const server = http.createServer(app);
 /**
  * Listen on provided port, on all network interfaces.
  */
+
+const io = require("socket.io")(server, {
+  maxHttpBufferSize: 10 * 1024 * 1024,
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
+
+initSocket(io);
 
 server.listen(port);
 server.on("error", onError);

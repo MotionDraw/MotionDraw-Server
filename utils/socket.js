@@ -1,18 +1,4 @@
-const { Server } = require("socket.io");
-
-const io = new Server({
-  maxHttpBufferSize: 10 * 1024 * 1024,
-  cors: {
-    origin: process.env.CORS_ORIGIN,
-    methods: ["GET", "POST"],
-  },
-  connectionStateRecovery: {
-    maxDisconnectionDuration: 2 * 60 * 1000,
-    skipMiddlewares: true,
-  },
-});
-
-const initSocket = () => {
+const initSocket = (io) => {
   let publicRooms = [];
 
   io.on("connection", (socket) => {
@@ -100,13 +86,9 @@ const initSocket = () => {
       socket.broadcast.to(roomName).emit("cursorPosition", socketId, data);
     });
   });
-
-  io.listen(4000, () => {
-    console.log("Server started on port 4000");
-  });
 };
 
-const closeSocket = () => {
+const closeSocket = (io) => {
   io.close();
 };
 
